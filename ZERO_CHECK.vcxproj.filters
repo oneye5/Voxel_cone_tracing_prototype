@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ocjla\Desktop\UNI_WORK\CGRA350\Project\CGRA350_Framework\CGRA350T12024_Framework\work\CMakeFiles\570ed05cf9edbd3e02d05b5d84bb776d\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{499143D8-52EB-303C-AE11-5440BE3823C8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

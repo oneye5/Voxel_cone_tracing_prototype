@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\ocjla\Desktop\UNI_WORK\CGRA350\Project\CGRA350_Framework\CGRA350T12024_Framework\work\ext\glew-1.10.0\src\glew.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\ocjla\Desktop\UNI_WORK\CGRA350\Project\CGRA350_Framework\CGRA350T12024_Framework\work\ext\glew-1.10.0\include\GL\glew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\ocjla\Desktop\UNI_WORK\CGRA350\Project\CGRA350_Framework\CGRA350T12024_Framework\work\ext\glew-1.10.0\include\GL\glxew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\ocjla\Desktop\UNI_WORK\CGRA350\Project\CGRA350_Framework\CGRA350T12024_Framework\work\ext\glew-1.10.0\include\GL\wglew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ocjla\Desktop\UNI_WORK\CGRA350\Project\CGRA350_Framework\CGRA350T12024_Framework\work\ext\glew-1.10.0\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{A8B5A492-99A8-3EB5-9BFA-48744E061903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{9F1EBEE0-6004-35C0-BE04-C94449014C4F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
