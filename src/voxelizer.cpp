@@ -104,7 +104,6 @@ void Voxelizer::voxelize(std::function<void()> drawMainGeometry, const mat4& mod
     m_currentViewportWidth = viewport[2];
     m_currentViewportHeight = viewport[3];
 
-    clearVoxelTexture();
     setupVoxelizationState();
     performVoxelization(drawMainGeometry, modelTransform);
     restoreRenderingState(m_currentViewportWidth, m_currentViewportHeight);
@@ -157,7 +156,6 @@ void Voxelizer::performVoxelization(std::function<void()> drawMainGeometry, cons
     // Render from three orthogonal directions
     const char* axisNames[] = { "X", "Y", "Z" };
     for (int i = 0; i < 3; ++i) {
-        std::cout << "Voxelizing from " << axisNames[i] << " axis..." << std::endl;
         glUniformMatrix4fv(glGetUniformLocation(m_voxelShader, "uViewMatrix"), 1, GL_FALSE, value_ptr(views[i]));
         drawMainGeometry();
     }
@@ -195,8 +193,6 @@ void Voxelizer::renderDebugSlice(float sliceValue) {
     glBindVertexArray(m_quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
-
-    std::cout << "Debug visualization completed, slice: " << sliceValue << std::endl;
 }
 
 void Voxelizer::setResolution(int resolution) {

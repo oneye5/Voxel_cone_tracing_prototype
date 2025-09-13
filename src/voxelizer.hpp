@@ -21,6 +21,7 @@ public:
     // Main interface 
     void voxelize(std::function<void()>, const glm::mat4& modelTransform);
     void renderDebugSlice(float sliceValue);
+    void clearVoxelTexture();
 
     // Configuration
     void setResolution(int resolution);
@@ -38,7 +39,6 @@ private:
     void initializeQuad();
 
     // Voxelization steps
-    void clearVoxelTexture();
     void setupVoxelizationState();
     void restoreRenderingState(int width, int height);
     void performVoxelization(std::function<void()> drawMainGeometry, const glm::mat4& modelTransform);

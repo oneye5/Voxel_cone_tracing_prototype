@@ -24,18 +24,12 @@ using namespace glm;
 Voxelizer* voxelizer = nullptr;
 float debugSlice = 0.5; 
 
-void Application::drawModel() {
+void Application::drawModel() { // void helper method, we just want a draw call, without projection
 	glm::mat4 ident = glm::mat4(1);
 	m_model.draw(ident, ident);
 }
 void basic_model::draw(const glm::mat4& view, const glm::mat4 proj) {
-	mat4 modelview = view * modelTransform;
-
-	//glUseProgram(shader); // load shader and variables
-	//glUniformMatrix4fv(glGetUniformLocation(shader, "uProjectionMatrix"), 1, false, value_ptr(proj));
-	//glUniformMatrix4fv(glGetUniformLocation(shader, "uModelViewMatrix"), 1, false, value_ptr(modelview));
-	//glUniform3fv(glGetUniformLocation(shader, "uColor"), 1, value_ptr(color));
-
+	// uniform setting omitted, only want a draw call
 	mesh.draw(); // draw
 }
 Application::Application(GLFWwindow* window) : m_window(window) {
