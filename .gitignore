@@ -5,3 +5,12 @@
 /src/base.dir/Debug
 *.user
 /x64
+/CMakeFiles
+/cmake
+/ext
+*.sln
+*.txt
+*.vcxproj
+*.filters
+*.sh
+*.bat
