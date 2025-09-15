@@ -29,18 +29,15 @@ void Application::drawModel() {
 	glm::mat4 ident = glm::mat4(1);
 	m_model.draw(ident, ident);
 }
-void basic_model::draw(const glm::mat4& view, const glm::mat4 proj) {
+void basic_model::draw(const glm::mat4& view, const glm::mat4 proj) { 
 	mat4 modelview = view * modelTransform;
-
 	glUseProgram(shader); 
-
-	if (proj != mat4(1)) { // if projection matrix is an identity matrix, this signifies that we dont want to overwrite the current uniforms, as the have been set externally
+	if (proj != mat4(1)) { // if projection matrix is an identity matrix, dont set matricies
 		glUniformMatrix4fv(glGetUniformLocation(shader, "uModelViewMatrix"), 1, GL_FALSE, value_ptr(modelview));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "uViewMatrix"), 1, GL_FALSE, value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelTransform));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "uProjectionMatrix"), 1, GL_FALSE, value_ptr(proj));
 	}
-
 	mesh.draw(); // draw
 }
 Application::Application(GLFWwindow* window) : m_window(window) {
