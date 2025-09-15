@@ -5,6 +5,7 @@ uniform int uVoxelRes;
 uniform float uVoxelWorldSize;
 
 in vec3 worldPos;
+out vec4 fragColor;
 
 void voxelizeFragment(vec3 worldPos, vec4 color) {
     vec3 voxelPos = (worldPos + uVoxelWorldSize * 0.5) / uVoxelWorldSize;
@@ -15,5 +16,6 @@ void voxelizeFragment(vec3 worldPos, vec4 color) {
 
 void main() {
 	voxelizeFragment(worldPos, vec4(1.0));
+	fragColor = vec4(1);
 }
 

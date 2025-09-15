@@ -23,6 +23,7 @@ using namespace glm;
 
 Voxelizer* voxelizer = nullptr;
 float debugSlice = 0.5; 
+bool voxelDebugMode = false;
 
 void Application::drawModel() {
 	glm::mat4 ident = glm::mat4(1);
@@ -30,7 +31,16 @@ void Application::drawModel() {
 }
 void basic_model::draw(const glm::mat4& view, const glm::mat4 proj) {
 	mat4 modelview = view * modelTransform;
-	glUseProgram(shader);
+
+	glUseProgram(shader); 
+
+	if (proj != mat4(1)) { // if projection matrix is an identity matrix, this signifies that we dont want to overwrite the current uniforms, as the have been set externally
+		glUniformMatrix4fv(glGetUniformLocation(shader, "uModelViewMatrix"), 1, GL_FALSE, value_ptr(modelview));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "uViewMatrix"), 1, GL_FALSE, value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelTransform));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "uProjectionMatrix"), 1, GL_FALSE, value_ptr(proj));
+	}
+
 	mesh.draw(); // draw
 }
 Application::Application(GLFWwindow* window) : m_window(window) {
@@ -86,10 +96,12 @@ void Application::render() {
 	m_model.draw(view, proj);
 
 	// draw 
-	auto app = this;
-	voxelizer->voxelize([&]() { app->drawModel(); }, glm::mat4(1), m_model.shader);
-
-	voxelizer->renderDebugSlice(debugSlice);
+	if (voxelDebugMode)
+	{
+		auto app = this;
+		voxelizer->voxelize([&]() { app->drawModel(); }, glm::mat4(1), m_model.shader);
+		voxelizer->renderDebugSlice(debugSlice);
+	}
 }
 
 
@@ -124,6 +136,7 @@ void Application::renderGUI() {
 	}
 
 	ImGui::SliderFloat("Voxel debug slice", &debugSlice, 0,1);
+	ImGui::Checkbox("Voxel debug mode", &voxelDebugMode);
 
 	// finish creating window
 	ImGui::End();
