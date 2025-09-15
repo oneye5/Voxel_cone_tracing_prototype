@@ -23,14 +23,6 @@ Voxelizer::Voxelizer(int resolution)
     m_initialized = true;
 }
 
-Voxelizer::~Voxelizer() {
-    if (m_voxelTexture) glDeleteTextures(1, &m_voxelTexture);
-    if (m_voxelShader) glDeleteProgram(m_voxelShader);
-    if (m_debugShader) glDeleteProgram(m_debugShader);
-    if (m_quadVAO) glDeleteVertexArrays(1, &m_quadVAO);
-    if (m_quadVBO) glDeleteBuffers(1, &m_quadVBO);
-}
-
 void Voxelizer::initializeTexture() {
     glGenTextures(1, &m_voxelTexture);
     glBindTexture(GL_TEXTURE_3D, m_voxelTexture);
@@ -54,11 +46,12 @@ void Voxelizer::initializeTexture() {
 }
 
 void Voxelizer::initializeShaders() {
-    // Voxelization shader
+    /* Voxelization shader
     shader_builder voxelBuilder;
     voxelBuilder.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//voxelize_vert.glsl"));
     voxelBuilder.set_shader(GL_FRAGMENT_SHADER, CGRA_SRCDIR + std::string("//res//shaders//voxelize_frag.glsl"));
     m_voxelShader = voxelBuilder.build();
+    */ // unused, this behaviour is expected to be contained by the current shader
 
     // Debug visualization shader
     shader_builder debugBuilder;
@@ -92,7 +85,7 @@ void Voxelizer::initializeQuad() {
     glBindVertexArray(0);
 }
 
-void Voxelizer::voxelize(std::function<void()> drawMainGeometry, const mat4& modelTransform) {
+void Voxelizer::voxelize(std::function<void()> drawMainGeometry, const mat4& modelTransform, const GLuint usingShader) {
     if (!m_initialized) {
         std::cerr << "Voxelizer not properly initialized!" << std::endl;
         return;
@@ -105,7 +98,7 @@ void Voxelizer::voxelize(std::function<void()> drawMainGeometry, const mat4& mod
     m_currentViewportHeight = viewport[3];
 
     setupVoxelizationState();
-    performVoxelization(drawMainGeometry, modelTransform);
+    performVoxelization(drawMainGeometry, modelTransform, usingShader);
     restoreRenderingState(m_currentViewportWidth, m_currentViewportHeight);
 
     // Memory barrier to ensure writes are complete
@@ -124,7 +117,7 @@ void Voxelizer::clearVoxelTexture() {
 }
 
 void Voxelizer::setupVoxelizationState() {
-    glUseProgram(m_voxelShader);
+    // glUseProgram(m_voxelShader); not needed
     glViewport(0, 0, m_params.resolution, m_params.resolution);
 
     // Bind voxel texture for writing
@@ -143,20 +136,22 @@ void Voxelizer::restoreRenderingState(int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void Voxelizer::performVoxelization(std::function<void()> drawMainGeometry, const glm::mat4& modelTransform) {
+void Voxelizer::performVoxelization(std::function<void()> drawMainGeometry, const glm::mat4& modelTransform, const GLuint usingShader) {
     // Set common uniforms
     mat4 orthoProj = createOrthographicProjection();
     auto views = createOrthographicViews();
 
-    glUniformMatrix4fv(glGetUniformLocation(m_voxelShader, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelTransform));
-    glUniformMatrix4fv(glGetUniformLocation(m_voxelShader, "uProjectionMatrix"), 1, GL_FALSE, value_ptr(orthoProj));
-    glUniform1i(glGetUniformLocation(m_voxelShader, "uVoxelRes"), m_params.resolution);
-    glUniform1f(glGetUniformLocation(m_voxelShader, "uVoxelWorldSize"), m_params.worldSize);
+    glUniformMatrix4fv(glGetUniformLocation(usingShader, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelTransform));
+    glUniformMatrix4fv(glGetUniformLocation(usingShader, "uProjectionMatrix"), 1, GL_FALSE, value_ptr(orthoProj));
+    glUniform1i(glGetUniformLocation(usingShader, "uVoxelRes"), m_params.resolution);
+    glUniform1f(glGetUniformLocation(usingShader, "uVoxelWorldSize"), m_params.worldSize);
 
     // Render from three orthogonal directions
     const char* axisNames[] = { "X", "Y", "Z" };
     for (int i = 0; i < 3; ++i) {
-        glUniformMatrix4fv(glGetUniformLocation(m_voxelShader, "uViewMatrix"), 1, GL_FALSE, value_ptr(views[i]));
+        glm::mat4 modelView = views[i] * modelTransform;
+        glUniformMatrix4fv(glGetUniformLocation(usingShader, "uModelViewMatrix"), 1, GL_FALSE, value_ptr(views[i]));
+        glUniformMatrix4fv(glGetUniformLocation(usingShader, "uViewMatrix"), 1, GL_FALSE, value_ptr(modelView));
         drawMainGeometry();
     }
 }

@@ -11,8 +11,6 @@ uniform float uVoxelWorldSize;
 out vec3 worldPos;
 
 void main() {
-    vec4 worldPosition = uModelMatrix * vec4(aPosition, 1.0);
-    worldPos = worldPosition.xyz;
-    
+    worldPos = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
     gl_Position = uProjectionMatrix * uViewMatrix * worldPosition;
 }

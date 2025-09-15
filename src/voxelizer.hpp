@@ -19,7 +19,7 @@ public:
     ~Voxelizer();
 
     // Main interface 
-    void voxelize(std::function<void()>, const glm::mat4& modelTransform);
+    void voxelize(std::function<void()> drawMainGeometry, const  glm::mat4& modelTransform, const GLuint usingShader);
     void renderDebugSlice(float sliceValue);
     void clearVoxelTexture();
 
@@ -41,7 +41,7 @@ private:
     // Voxelization steps
     void setupVoxelizationState();
     void restoreRenderingState(int width, int height);
-    void performVoxelization(std::function<void()> drawMainGeometry, const glm::mat4& modelTransform);
+    void performVoxelization(std::function<void()> drawMainGeometry, const glm::mat4& modelTransform, const GLuint usingShader);
 
     // Helper methods
     glm::mat4 createOrthographicProjection() const;

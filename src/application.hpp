@@ -52,6 +52,7 @@ private:
 
 public:
 	void initFullscreenQuad();
+	void drawTransformedModel();
 	void drawModel();
 	// setup
 	Application(GLFWwindow *);

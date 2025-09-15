@@ -24,12 +24,13 @@ using namespace glm;
 Voxelizer* voxelizer = nullptr;
 float debugSlice = 0.5; 
 
-void Application::drawModel() { // void helper method, we just want a draw call, without projection
+void Application::drawModel() {
 	glm::mat4 ident = glm::mat4(1);
 	m_model.draw(ident, ident);
 }
 void basic_model::draw(const glm::mat4& view, const glm::mat4 proj) {
-	// uniform setting omitted, only want a draw call
+	mat4 modelview = view * modelTransform;
+	glUseProgram(shader);
 	mesh.draw(); // draw
 }
 Application::Application(GLFWwindow* window) : m_window(window) {
@@ -81,13 +82,12 @@ void Application::render() {
 	if (m_show_axis) drawAxis(view, proj);
 	glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
-
 	// draw the model
 	m_model.draw(view, proj);
 
 	// draw 
 	auto app = this;
-	voxelizer->voxelize([&]() { app->drawModel(); }, glm::mat4(1));
+	voxelizer->voxelize([&]() { app->drawModel(); }, glm::mat4(1), m_model.shader);
 
 	voxelizer->renderDebugSlice(debugSlice);
 }

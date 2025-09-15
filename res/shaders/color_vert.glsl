@@ -4,6 +4,7 @@
 uniform mat4 uProjectionMatrix;
 uniform mat4 uModelViewMatrix;
 uniform vec3 uColor;
+uniform mat4 uModelMatrix;
 
 // mesh data
 layout(location = 0) in vec3 aPosition;
@@ -17,6 +18,8 @@ out VertexData {
 	vec2 textureCoord;
 } v_out;
 
+out vec3 worldPos;
+
 void main() {
 	// transform vertex data to viewspace
 	v_out.position = (uModelViewMatrix * vec4(aPosition, 1)).xyz;
@@ -25,4 +28,7 @@ void main() {
 
 	// set the screenspace position (needed for converting to fragment data)
 	gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1);
+
+	vec4 worldPosition = uModelMatrix * vec4(aPosition, 1.0);
+	worldPos = worldPosition.xyz;
 }
