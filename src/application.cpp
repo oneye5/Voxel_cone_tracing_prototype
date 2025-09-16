@@ -17,6 +17,7 @@
 #include "cgra/cgra_wavefront.hpp"
 #include "voxelizer.hpp"
 #include "gBufferPrepass.hpp"
+#include "gBufferLightingPass.hpp"
 
 using namespace std;
 using namespace cgra;
@@ -26,6 +27,7 @@ Voxelizer* voxelizer = nullptr;
 float debugSlice = 0.5; 
 bool voxelDebugMode = false;
 gBufferPrepass* prepassHandle = nullptr;
+gBufferLightingPass* lightingPassHandle = nullptr;
 
 void Application::drawModelWithoutSetUniforms() {
 	glm::mat4 ident = glm::mat4(1);
@@ -63,6 +65,8 @@ Application::Application(GLFWwindow* window) : m_window(window) {
 	glfwGetFramebufferSize(m_window, &width, &height);
 	prepassHandle = new gBufferPrepass(width, height);
 
+	// set up lighting pass
+	lightingPassHandle = new gBufferLightingPass(prepassHandle);
 }
 
 
@@ -115,6 +119,10 @@ void Application::render() {
 	{
 		voxelizer->voxelize([&]() { app->drawModelWithoutSetUniforms(); }, glm::mat4(1), m_model.shader);
 		voxelizer->renderDebugSlice(debugSlice);
+	}
+	else
+	{
+		lightingPassHandle->runPass();
 	}
 }
 
