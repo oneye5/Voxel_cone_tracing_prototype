@@ -28,6 +28,8 @@ float debugSlice = 0.5;
 bool voxelDebugMode = false;
 gBufferPrepass* prepassHandle = nullptr;
 gBufferLightingPass* lightingPassHandle = nullptr;
+int debugMode = 0;
+
 
 void Application::drawModelWithoutSetUniforms() {
 	glm::mat4 ident = glm::mat4(1);
@@ -118,11 +120,11 @@ void Application::render() {
 	if (voxelDebugMode)
 	{
 		voxelizer->voxelize([&]() { app->drawModelWithoutSetUniforms(); }, glm::mat4(1), m_model.shader);
-		voxelizer->renderDebugSlice(debugSlice);
+		voxelizer->renderDebugSlice(debugSlice, debugMode);
 	}
 	else
 	{
-		lightingPassHandle->runPass();
+		lightingPassHandle->runPass(debugMode);
 	}
 }
 
@@ -147,18 +149,10 @@ void Application::renderGUI() {
 	ImGui::Checkbox("Wireframe", &m_showWireframe);
 	ImGui::SameLine();
 	if (ImGui::Button("Screenshot")) rgba_image::screenshot(true);
-
-
 	ImGui::Separator();
-
-	// example of how to use input boxes
-	static float exampleInput;
-	if (ImGui::InputFloat("example input", &exampleInput)) {
-		cout << "example input changed to " << exampleInput << endl;
-	}
-
 	ImGui::SliderFloat("Voxel debug slice", &debugSlice, 0,1);
 	ImGui::Checkbox("Voxel debug mode", &voxelDebugMode);
+	ImGui::SliderInt("Debug mode preset", &debugMode, 0, 10);
 
 	// finish creating window
 	ImGui::End();

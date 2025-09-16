@@ -205,14 +205,14 @@ std::array<mat4, 3> Voxelizer::createOrthographicViews() const {
     };
 }
 
-void Voxelizer::renderDebugSlice(float sliceValue) {
+void Voxelizer::renderDebugSlice(float sliceValue, int debugMode) {
     if (!m_initialized) {
         std::cerr << "Voxelizer not properly initialized!" << std::endl;
         return;
     }
 
     glUseProgram(m_debugShader);
-
+    glUniform1i(glGetUniformLocation(m_debugShader, "uDebugIndex"), debugMode);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, m_voxelTex0);
     glActiveTexture(GL_TEXTURE1);
@@ -226,6 +226,8 @@ void Voxelizer::renderDebugSlice(float sliceValue) {
     glBindVertexArray(m_quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+
+    restoreRenderingState(m_currentViewportWidth, m_currentViewportHeight);
 }
 
 void Voxelizer::setResolution(int resolution) {

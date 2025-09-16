@@ -9,12 +9,14 @@
 #include <functional>
 #include "gBufferPrepass.hpp"
 #include <cgra/cgra_shader.hpp>
+#include <iostream>
 
 class gBufferLightingPass {
 public:
+	//int* debugModePtr = nullptr;
 	gBufferLightingPass(gBufferPrepass* prepassObj) {
 		prepass = prepassObj;
-
+		//debugModePtr = &prepassObj->debugMode;
 		// setup shaders
 		cgra::shader_builder sb;
 		sb.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//fullscreen_quad_vert.glsl"));
@@ -40,11 +42,13 @@ public:
 		}
 	}
 
-	void runPass() {
+	void runPass(int debugMode = 0) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);  // Render to screen
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shader);
+		// Bind debug mode
+		glUniform1i(glGetUniformLocation(shader, "uDebugIndex"), debugMode);
 
 		// Bind all G-buffer attachments
 		glActiveTexture(GL_TEXTURE0);

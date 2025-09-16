@@ -19,7 +19,7 @@ public:
     ~Voxelizer();
     // Main interface 
     void voxelize(std::function<void()> drawMainGeometry, const  glm::mat4& modelTransform, const GLuint usingShader);
-    void renderDebugSlice(float sliceValue);
+    void renderDebugSlice(float sliceValue, int debugMode = 0);
     void clearVoxelTexture(); 
 
     // Configuration
