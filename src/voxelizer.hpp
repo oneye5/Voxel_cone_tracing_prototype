@@ -16,7 +16,7 @@ public:
     };
 
     Voxelizer(int resolution = 512);
-
+    ~Voxelizer();
     // Main interface 
     void voxelize(std::function<void()> drawMainGeometry, const  glm::mat4& modelTransform, const GLuint usingShader);
     void renderDebugSlice(float sliceValue);

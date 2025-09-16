@@ -24,6 +24,22 @@ public:
 		setupQuad();
 	}
 
+	~gBufferLightingPass() {
+		glUseProgram(0);
+		if (shader != 0 && glIsProgram(shader)) {
+			glDeleteProgram(shader);
+			shader = 0;
+		}
+		if (quadVBO != 0) {
+			glDeleteBuffers(1, &quadVBO);
+			quadVBO = 0;
+		}
+		if (quadVAO != 0) {
+			glDeleteVertexArrays(1, &quadVAO);
+			quadVAO = 0;
+		}
+	}
+
 	void runPass() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);  // Render to screen
 		glClear(GL_COLOR_BUFFER_BIT);

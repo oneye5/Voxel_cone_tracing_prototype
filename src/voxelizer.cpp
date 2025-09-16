@@ -25,6 +25,40 @@ Voxelizer::Voxelizer(int resolution)
     m_initialized = true;
 }
 
+Voxelizer::~Voxelizer() {
+    glUseProgram(0);
+
+    if (m_quadVBO != 0) {
+        glDeleteBuffers(1, &m_quadVBO);
+        m_quadVBO = 0;
+    }
+    if (m_quadVAO != 0) {
+        glDeleteVertexArrays(1, &m_quadVAO);
+        m_quadVAO = 0;
+    }
+    if (m_voxelTex0 != 0) {
+        glDeleteTextures(1, &m_voxelTex0);
+        m_voxelTex0 = 0;
+    }
+    if (m_voxelTex1 != 0) {
+        glDeleteTextures(1, &m_voxelTex1);
+        m_voxelTex1 = 0;
+    }
+    if (m_voxelTex2 != 0) {
+        glDeleteTextures(1, &m_voxelTex2);
+        m_voxelTex2 = 0;
+    }
+    if (m_voxelShader != 0 && glIsProgram(m_voxelShader)) {
+        glDeleteProgram(m_voxelShader);
+        m_voxelShader = 0;
+    }
+    if (m_debugShader != 0 && glIsProgram(m_debugShader)) {
+        glDeleteProgram(m_debugShader);
+        m_debugShader = 0;
+    }
+    m_initialized = false;
+}
+
 void Voxelizer::initializeTextures() {
     auto make3DTex = [&](GLuint& tex) {
         glGenTextures(1, &tex);
