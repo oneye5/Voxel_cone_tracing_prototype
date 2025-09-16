@@ -23,5 +23,5 @@ void main() {
     vec3 emissiveRgb = texture(gBufferEmissive, texCoord).xyz;
     float spare = texture(gBufferEmissive, texCoord).w;
 
-    FragColor = vec4(worldPos, 1.0);
+    FragColor = vec4(worldNormal, 1.0);
 }

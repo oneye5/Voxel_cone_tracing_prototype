@@ -12,6 +12,7 @@ layout (location = 2) out vec4 gAlbedo;      // albedo.rgb + emissiveFactor
 layout (location = 3) out vec4 gEmissive;    // emissive.rgb + spare channel
 
 in vec3 worldPos;
+in vec3 normal;
 out vec4 fragColor;
 
 void voxelizeFragment(vec3 worldPos, vec4 color) {
@@ -53,6 +54,6 @@ void writeRenderInfo(vec3 worldPosition,
 }
 
 void main() {
-	writeRenderInfo(worldPos, vec3(1.0), vec4(1.0), vec3(1.0), 1, 1, 1, 1);
+	writeRenderInfo(worldPos, normal, vec4(1.0), vec3(1.0), 1, 1, 1, 1);
 	fragColor = vec4(1);
 }

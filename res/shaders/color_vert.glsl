@@ -12,8 +12,10 @@ uniform float uVoxelWorldSize;
 uniform int uRenderMode; // 0 = write voxels, 1 = write to gbuffer
 
 out vec3 worldPos;
+out vec3 normal;
 
 void main() {
     worldPos = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
+    normal = aNormal;
     gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.0);
 }
