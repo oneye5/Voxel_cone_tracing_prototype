@@ -8,7 +8,9 @@ using namespace cgra;
 
 Voxelizer::Voxelizer(int resolution)
     : m_params{ resolution, 30.0f, vec3(0.0f) }
-    , m_voxelTexture(0)
+    , m_voxelTex0(0)
+    , m_voxelTex1(0)
+    , m_voxelTex2(0)
     , m_voxelShader(0)
     , m_debugShader(0)
     , m_quadVAO(0)
@@ -17,42 +19,34 @@ Voxelizer::Voxelizer(int resolution)
     , m_currentViewportWidth(0)
     , m_currentViewportHeight(0)
 {
-    initializeTexture();
+    initializeTextures();
     initializeShaders();
     initializeQuad();
     m_initialized = true;
 }
 
-void Voxelizer::initializeTexture() {
-    glGenTextures(1, &m_voxelTexture);
-    glBindTexture(GL_TEXTURE_3D, m_voxelTexture);
+void Voxelizer::initializeTextures() {
+    auto make3DTex = [&](GLuint& tex) {
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_3D, tex);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8,
+            m_params.resolution, m_params.resolution, m_params.resolution,
+            0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glBindTexture(GL_TEXTURE_3D, 0);
+        };
 
-    // Set texture parameters
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    // Allocate texture storage
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8,
-        m_params.resolution, m_params.resolution, m_params.resolution,
-        0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-    // Bind as image texture for compute operations
-    glBindImageTexture(0, m_voxelTexture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
-
-    glBindTexture(GL_TEXTURE_3D, 0);
+    make3DTex(m_voxelTex0);
+    make3DTex(m_voxelTex1);
+    make3DTex(m_voxelTex2);
 }
 
-void Voxelizer::initializeShaders() {
-    /* Voxelization shader
-    shader_builder voxelBuilder;
-    voxelBuilder.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//voxelize_vert.glsl"));
-    voxelBuilder.set_shader(GL_FRAGMENT_SHADER, CGRA_SRCDIR + std::string("//res//shaders//voxelize_frag.glsl"));
-    m_voxelShader = voxelBuilder.build();
-    */ // unused, this behaviour is expected to be contained by the current shader
 
+void Voxelizer::initializeShaders() {
     // Debug visualization shader
     shader_builder debugBuilder;
     debugBuilder.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//fullscreen_quad_vert.glsl"));
@@ -113,7 +107,9 @@ void Voxelizer::voxelize(std::function<void()> drawMainGeometry, const mat4& mod
 
 void Voxelizer::clearVoxelTexture() {
     GLfloat clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    glClearTexImage(m_voxelTexture, 0, GL_RGBA, GL_FLOAT, clearColor);
+    glClearTexImage(m_voxelTex0, 0, GL_RGBA, GL_FLOAT, clearColor);
+    glClearTexImage(m_voxelTex1, 0, GL_RGBA, GL_FLOAT, clearColor);
+    glClearTexImage(m_voxelTex2, 0, GL_RGBA, GL_FLOAT, clearColor);
 }
 
 void Voxelizer::setupVoxelizationState() {
@@ -121,7 +117,9 @@ void Voxelizer::setupVoxelizationState() {
     glViewport(0, 0, m_params.resolution, m_params.resolution);
 
     // Bind voxel texture for writing
-    glBindImageTexture(0, m_voxelTexture, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+    glBindImageTexture(0, m_voxelTex0, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+    glBindImageTexture(1, m_voxelTex1, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+    glBindImageTexture(2, m_voxelTex2, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
     // Disable framebuffer rendering since we're writing directly to 3D texture
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -182,7 +180,12 @@ void Voxelizer::renderDebugSlice(float sliceValue) {
     glUseProgram(m_debugShader);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_3D, m_voxelTexture);
+    glBindTexture(GL_TEXTURE_3D, m_voxelTex0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_3D, m_voxelTex1);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_3D, m_voxelTex2);
+
     glUniform1i(glGetUniformLocation(m_debugShader, "uVoxelTex"), 0);
     glUniform1f(glGetUniformLocation(m_debugShader, "uSlice"), sliceValue);
 
@@ -195,8 +198,10 @@ void Voxelizer::setResolution(int resolution) {
     if (resolution != m_params.resolution) {
         m_params.resolution = resolution;
         // Recreate texture with new resolution
-        glDeleteTextures(1, &m_voxelTexture);
-        initializeTexture();
+        glDeleteTextures(1, &m_voxelTex0);
+        glDeleteTextures(1, &m_voxelTex1);
+        glDeleteTextures(1, &m_voxelTex2);
+        initializeTextures();
     }
 }
 

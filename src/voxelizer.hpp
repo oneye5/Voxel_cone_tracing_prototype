@@ -16,25 +16,19 @@ public:
     };
 
     Voxelizer(int resolution = 512);
-    ~Voxelizer();
 
     // Main interface 
     void voxelize(std::function<void()> drawMainGeometry, const  glm::mat4& modelTransform, const GLuint usingShader);
     void renderDebugSlice(float sliceValue);
-    void clearVoxelTexture();
+    void clearVoxelTexture(); 
 
     // Configuration
     void setResolution(int resolution);
     void setWorldSize(float worldSize);
     void setCenter(const glm::vec3& center);
-
-    // Getters
-    GLuint getVoxelTexture() const { return m_voxelTexture; }
-    const VoxelParams& getParams() const { return m_params; }
-
 private:
     // Initialization
-    void initializeTexture();
+    void initializeTextures();
     void initializeShaders();
     void initializeQuad();
 
@@ -51,7 +45,10 @@ private:
     VoxelParams m_params;
 
     // OpenGL resources
-    GLuint m_voxelTexture;
+    GLuint m_voxelTex0; // normal + smoothness
+    GLuint m_voxelTex1; // albedo + emissiveFactor
+    GLuint m_voxelTex2; // emissive + metallic
+
     GLuint m_voxelShader;
     GLuint m_debugShader;
     GLuint m_quadVAO;
