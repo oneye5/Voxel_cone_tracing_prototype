@@ -9,6 +9,7 @@ uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 uniform int uVoxelRes;
 uniform float uVoxelWorldSize;
+uniform int uRenderMode; // 0 = write voxels, 1 = write to gbuffer
 
 out vec3 worldPos;
 

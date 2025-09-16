@@ -16,6 +16,7 @@
 #include "cgra/cgra_shader.hpp"
 #include "cgra/cgra_wavefront.hpp"
 #include "voxelizer.hpp"
+#include "gBufferPrepass.hpp"
 
 using namespace std;
 using namespace cgra;
@@ -24,15 +25,16 @@ using namespace glm;
 Voxelizer* voxelizer = nullptr;
 float debugSlice = 0.5; 
 bool voxelDebugMode = false;
+gBufferPrepass* prepassHandle = nullptr;
 
-void Application::drawModel() {
+void Application::drawModelWithoutSetUniforms() {
 	glm::mat4 ident = glm::mat4(1);
 	m_model.draw(ident, ident);
 }
 void basic_model::draw(const glm::mat4& view, const glm::mat4 proj) { 
-	mat4 modelview = view * modelTransform;
 	glUseProgram(shader); 
 	if (proj != mat4(1)) { // if projection matrix is an identity matrix, dont set matricies
+		mat4 modelview = view * modelTransform;
 		glUniformMatrix4fv(glGetUniformLocation(shader, "uModelViewMatrix"), 1, GL_FALSE, value_ptr(modelview));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "uViewMatrix"), 1, GL_FALSE, value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shader, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelTransform));
@@ -55,6 +57,12 @@ Application::Application(GLFWwindow* window) : m_window(window) {
 	voxelizer = new Voxelizer(512);
 	voxelizer->setResolution(512);
 	voxelizer->setCenter(glm::vec3(0));
+
+	// set up prepass
+	int width, height;
+	glfwGetFramebufferSize(m_window, &width, &height);
+	prepassHandle = new gBufferPrepass(width, height);
+
 }
 
 
@@ -89,14 +97,23 @@ void Application::render() {
 	if (m_show_axis) drawAxis(view, proj);
 	glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
-	// draw the model
-	m_model.draw(view, proj);
+	// prepass
+	glUseProgram(m_model.shader);
+	auto app = this;
+	mat4 modelTransform = mat4(1);
+	mat4 modelview = view * modelTransform;
+	int mode = 1;
+	glUniformMatrix4fv(glGetUniformLocation(m_model.shader, "uModelViewMatrix"), 1, GL_FALSE, value_ptr(modelview));
+	glUniformMatrix4fv(glGetUniformLocation(m_model.shader, "uViewMatrix"), 1, GL_FALSE, value_ptr(view));
+	glUniformMatrix4fv(glGetUniformLocation(m_model.shader, "uModelMatrix"), 1, GL_FALSE, value_ptr(modelTransform));
+	glUniformMatrix4fv(glGetUniformLocation(m_model.shader, "uProjectionMatrix"), 1, GL_FALSE, value_ptr(proj));
+	prepassHandle->executePrepass(m_model.shader, [&]() { app->drawModelWithoutSetUniforms(); } );
+
 
 	// draw 
 	if (voxelDebugMode)
 	{
-		auto app = this;
-		voxelizer->voxelize([&]() { app->drawModel(); }, glm::mat4(1), m_model.shader);
+		voxelizer->voxelize([&]() { app->drawModelWithoutSetUniforms(); }, glm::mat4(1), m_model.shader);
 		voxelizer->renderDebugSlice(debugSlice);
 	}
 }

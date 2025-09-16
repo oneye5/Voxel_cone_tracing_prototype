@@ -145,6 +145,7 @@ void Voxelizer::performVoxelization(std::function<void()> drawMainGeometry, cons
     glUniformMatrix4fv(glGetUniformLocation(usingShader, "uProjectionMatrix"), 1, GL_FALSE, value_ptr(orthoProj));
     glUniform1i(glGetUniformLocation(usingShader, "uVoxelRes"), m_params.resolution);
     glUniform1f(glGetUniformLocation(usingShader, "uVoxelWorldSize"), m_params.worldSize);
+    glUniform1i(glGetUniformLocation(usingShader, "uRenderMode"), 0); // voxelize mode
 
     // Render from three orthogonal directions
     const char* axisNames[] = { "X", "Y", "Z" };
